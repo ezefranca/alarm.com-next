@@ -32,6 +32,15 @@
   "peerDependencies": {
     "homebridge": "^1.8.0"
   },
+  "author": "Ezequiel dos Santos",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ezefranca/alarm.com.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ezefranca/alarm.com/issues"
+  },
+  "homepage": "https://github.com/ezefranca/alarm.com#readme",
   "license": "MIT",
   "displayName": "Alarm.com"
 }

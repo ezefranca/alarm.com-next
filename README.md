@@ -71,6 +71,63 @@ Alarm.com's public website and app clearly support approving linked-device reque
 2. Add the platform config with your Alarm.com username and password.
 3. Run `alarmdotcom-auth` once to save an auth token.
 
+## Install in Homebridge
+
+### Local install from this repo
+
+Use this when Homebridge runs on the same machine where you are developing the plugin:
+
+```bash
+cd /path/to/alarm.com
+npm install
+sudo npm install -g .
+```
+
+### Install directly from GitHub
+
+Use this after the repo is pushed to GitHub, without publishing to npm:
+
+```bash
+sudo npm install -g github:ezefranca/alarm.com
+```
+
+### Install from npm
+
+This is the cleanest path for Homebridge UI users, but it requires publishing the package first:
+
+```bash
+sudo npm install -g homebridge-alarmdotcom
+```
+
+After any of the install paths above:
+
+1. Run `alarmdotcom-auth --username you@example.com`.
+2. Add the platform config shown below.
+3. Restart Homebridge.
+
+### When Homebridge runs on another machine
+
+If the Homebridge server is not this development machine, do the install and auth steps on the Homebridge server itself:
+
+```bash
+sudo npm install -g github:ezefranca/alarm.com
+alarmdotcom-auth --username you@example.com
+```
+
+That matters because the saved auth token file is local to the machine where `alarmdotcom-auth` runs. If you authenticate on one machine and Homebridge runs on another, you must either:
+
+1. Copy the token file to the Homebridge machine.
+2. Or set `tokenPath` so both the CLI and plugin point to the same shared file.
+
+## Publish checklist
+
+If you want this to be installable from the normal Homebridge plugin flow instead of a manual GitHub install:
+
+1. Push the repo to GitHub.
+2. Confirm the repo URL in `package.json` matches the final GitHub repository.
+3. Run `npm login`.
+4. Run `npm publish`.
+
 If your Homebridge storage lives elsewhere, point both the CLI and plugin at the same token file:
 
 ```bash
