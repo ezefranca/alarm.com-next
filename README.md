@@ -176,6 +176,7 @@ The legacy Homebridge platform name `AlarmdotcomTrustedDevice` is still register
 - Polling is intentionally conservative. The default is 60 seconds.
 - If Alarm.com resets 2FA or revokes trusted devices, rerun `alarmdotcom-auth`.
 - Some Alarm.com sensor types do not map cleanly to HomeKit and are intentionally skipped.
+- If `alarmdotcom-auth` appears to pause after the password prompt, run it again with `--debug` to see the current login step and clearer network errors.
 
 ## Research references
 

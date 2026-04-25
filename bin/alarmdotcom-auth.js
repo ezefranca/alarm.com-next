@@ -19,6 +19,7 @@ async function main() {
   const tokenPath = args['token-file'] || getDefaultTokenPath();
   const store = new TokenStore(tokenPath);
   const rl = readline.createInterface({ input: stdin, output: stdout });
+  const logger = createCliLogger({ verbose: Boolean(args.debug || args.verbose) });
 
   try {
     const username = args.username || await ask(rl, 'Alarm.com username');
@@ -29,10 +30,13 @@ async function main() {
     const storedToken = await store.getToken(username);
     const client = new AlarmDotComClient({
       authToken: importedAuthToken || storedToken,
+      logger,
       password,
       username
     });
     let usedOtpEnrollment = false;
+
+    stdout.write(`${describePrimaryAction({ deviceLinkCode, importedAuthToken })}...\n`);
 
     try {
       await client.login();
@@ -46,6 +50,7 @@ async function main() {
       }
 
       usedOtpEnrollment = true;
+      stdout.write('Alarm.com requires two-factor verification for this Homebridge instance.\n');
 
       const method = normalizeMethod(
         args.method ||
@@ -53,11 +58,15 @@ async function main() {
       );
 
       if (method !== 'app') {
+        stdout.write(`Requesting a one-time code via ${method}...\n`);
         await client.requestOtp(method);
         stdout.write(`Alarm.com sent a one-time code via ${method}.\n`);
+      } else {
+        stdout.write('Using the authenticator-app code flow.\n');
       }
 
       const code = args.code || await ask(rl, 'One-time code');
+      stdout.write('Verifying the one-time code and enrolling a reusable auth token...\n');
       await client.completeAuthTokenEnrollment({
         code,
         deviceName,
@@ -66,6 +75,7 @@ async function main() {
     }
 
     if (deviceLinkCode) {
+      stdout.write('Approving the linked-device activation code...\n');
       const result = await client.approveDeviceLinkRequest(deviceLinkCode);
 
       if (result.authToken) {
@@ -194,6 +204,12 @@ function hasPrintableResponse(response) {
 }
 
 main().catch((error) => {
+  if (isNetworkError(error)) {
+    stderrWrite(`Network request to Alarm.com failed: ${error.message}\n`);
+    process.exitCode = 4;
+    return;
+  }
+
   if (error instanceof AuthenticationError) {
     stderrWrite(`Authentication failed: ${error.message}\n`);
     process.exitCode = 2;
@@ -212,4 +228,50 @@ main().catch((error) => {
 
 function stderrWrite(message) {
   process.stderr.write(message);
+}
+
+function createCliLogger({ verbose }) {
+  if (!verbose) {
+    return {};
+  }
+
+  return {
+    debug(message) {
+      stderrWrite(`[debug] ${message}\n`);
+    },
+    info(message) {
+      stderrWrite(`[info] ${message}\n`);
+    },
+    warn(message) {
+      stderrWrite(`[warn] ${message}\n`);
+    },
+    error(message) {
+      stderrWrite(`[error] ${message}\n`);
+    }
+  };
+}
+
+function describePrimaryAction({ deviceLinkCode, importedAuthToken }) {
+  if (deviceLinkCode) {
+    return 'Logging in to Alarm.com before approving the linked-device code';
+  }
+
+  if (importedAuthToken) {
+    return 'Validating the supplied Alarm.com auth token';
+  }
+
+  return 'Logging in to Alarm.com';
+}
+
+function isNetworkError(error) {
+  const code = String(error && error.code ? error.code : '');
+  return (
+    code === 'ENOTFOUND' ||
+    code === 'ECONNRESET' ||
+    code === 'ECONNREFUSED' ||
+    code === 'EHOSTUNREACH' ||
+    code === 'ETIMEDOUT' ||
+    code === 'ECONNABORTED' ||
+    /timed out/i.test(String(error && error.message ? error.message : ''))
+  );
 }
