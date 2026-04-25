@@ -237,13 +237,13 @@ function createCliLogger({ verbose }) {
 
   return {
     debug(message) {
-      stderrWrite(`[debug] ${message}\n`);
+      stdout.write(`[debug] ${message}\n`);
     },
     info(message) {
-      stderrWrite(`[info] ${message}\n`);
+      stdout.write(`[info] ${message}\n`);
     },
     warn(message) {
-      stderrWrite(`[warn] ${message}\n`);
+      stdout.write(`[warn] ${message}\n`);
     },
     error(message) {
       stderrWrite(`[error] ${message}\n`);
