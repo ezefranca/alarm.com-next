@@ -1,0 +1,168 @@
+{
+  "pluginAlias": "Alarmdotcom",
+  "pluginType": "platform",
+  "singular": true,
+  "headerDisplay": "Authenticate this plugin once with `alarmdotcom-auth` to save an Alarm.com auth token. The helper can enroll through the standard two-factor flow or validate a manually supplied token.",
+  "footerDisplay": "Alarm.com is not affiliated with this plugin. Polling defaults to 60 seconds to avoid hammering the web API. The TV/device-link flow can be approved, but Homebridge does not yet mint its own 6-digit activation code.",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "default": "Alarm.com"
+      },
+      "username": {
+        "title": "Alarm.com Username",
+        "type": "string"
+      },
+      "password": {
+        "title": "Alarm.com Password",
+        "type": "string"
+      },
+      "tokenPath": {
+        "title": "Auth Token File",
+        "type": "string",
+        "description": "Optional override. Defaults to Homebridge storage/alarmdotcom-auth.json."
+      },
+      "pollIntervalSeconds": {
+        "title": "Poll Interval (seconds)",
+        "type": "integer",
+        "default": 60,
+        "minimum": 30
+      },
+      "authTimeoutMinutes": {
+        "title": "Session Refresh Interval (minutes)",
+        "type": "integer",
+        "default": 10,
+        "minimum": 5
+      },
+      "logLevel": {
+        "title": "Log Level",
+        "type": "string",
+        "default": "info",
+        "oneOf": [
+          {
+            "title": "Debug",
+            "enum": [
+              "debug"
+            ]
+          },
+          {
+            "title": "Info",
+            "enum": [
+              "info"
+            ]
+          },
+          {
+            "title": "Warn",
+            "enum": [
+              "warn"
+            ]
+          },
+          {
+            "title": "Error",
+            "enum": [
+              "error"
+            ]
+          }
+        ]
+      },
+      "ignoredDevices": {
+        "title": "Ignored Alarm.com Device IDs",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "armingModes": {
+        "title": "Arming Options",
+        "type": "object",
+        "properties": {
+          "stay": {
+            "title": "Stay",
+            "type": "object",
+            "properties": {
+              "noEntryDelay": {
+                "title": "No Entry Delay",
+                "type": "boolean",
+                "default": false
+              },
+              "silentArming": {
+                "title": "Silent Arming",
+                "type": "boolean",
+                "default": false
+              },
+              "nightArming": {
+                "title": "Night Arming",
+                "type": "boolean",
+                "default": false
+              },
+              "forceBypass": {
+                "title": "Force Bypass",
+                "type": "boolean",
+                "default": false
+              }
+            }
+          },
+          "away": {
+            "title": "Away",
+            "type": "object",
+            "properties": {
+              "noEntryDelay": {
+                "title": "No Entry Delay",
+                "type": "boolean",
+                "default": false
+              },
+              "silentArming": {
+                "title": "Silent Arming",
+                "type": "boolean",
+                "default": false
+              },
+              "nightArming": {
+                "title": "Night Arming",
+                "type": "boolean",
+                "default": false
+              },
+              "forceBypass": {
+                "title": "Force Bypass",
+                "type": "boolean",
+                "default": false
+              }
+            }
+          },
+          "night": {
+            "title": "Night",
+            "type": "object",
+            "properties": {
+              "noEntryDelay": {
+                "title": "No Entry Delay",
+                "type": "boolean",
+                "default": false
+              },
+              "silentArming": {
+                "title": "Silent Arming",
+                "type": "boolean",
+                "default": false
+              },
+              "nightArming": {
+                "title": "Night Arming",
+                "type": "boolean",
+                "default": true
+              },
+              "forceBypass": {
+                "title": "Force Bypass",
+                "type": "boolean",
+                "default": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "required": [
+      "username",
+      "password"
+    ]
+  }
+}

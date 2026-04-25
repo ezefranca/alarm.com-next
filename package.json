@@ -1,0 +1,37 @@
+{
+  "name": "homebridge-alarmdotcom",
+  "version": "0.2.0",
+  "description": "Alarm.com plugin for Homebridge with reusable auth-token enrollment instead of manual MFA cookies.",
+  "main": "index.js",
+  "bin": {
+    "alarmdotcom-auth": "bin/alarmdotcom-auth.js"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "index.js",
+    "config.schema.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "check": "node --check index.js && node --check lib/alarmdotcom-client.js && node --check lib/mappers.js && node --check lib/platform.js && node --check lib/token-store.js && node --check bin/alarmdotcom-auth.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "homebridge-plugin",
+    "homebridge",
+    "homekit",
+    "alarm.com",
+    "alarmdotcom"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "homebridge": "^1.8.0"
+  },
+  "peerDependencies": {
+    "homebridge": "^1.8.0"
+  },
+  "license": "MIT",
+  "displayName": "Alarm.com"
+}
