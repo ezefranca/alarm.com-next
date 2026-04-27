@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "Alarmdotcom",
+  "pluginAlias": "AlarmdotcomNext",
   "pluginType": "platform",
   "singular": true,
   "headerDisplay": "Authenticate this plugin once with `alarmdotcom-auth` to save an Alarm.com auth token. The helper can enroll through the standard two-factor flow or validate a manually supplied token.",
@@ -10,7 +10,7 @@
       "name": {
         "title": "Name",
         "type": "string",
-        "default": "Alarm.com"
+        "default": "Alarm.com Next"
       },
       "username": {
         "title": "Alarm.com Username",
@@ -19,6 +19,11 @@
       "password": {
         "title": "Alarm.com Password",
         "type": "string"
+      },
+      "authToken": {
+        "title": "Existing Alarm.com Auth Token",
+        "type": "string",
+        "description": "Optional. Paste a reusable Alarm.com token here if you already enrolled this Homebridge instance or exported a token elsewhere."
       },
       "tokenPath": {
         "title": "Auth Token File",

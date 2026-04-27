@@ -1,6 +1,6 @@
 {
-  "name": "homebridge-alarmdotcom",
-  "version": "0.2.0",
+  "name": "homebridge-alarmdotcom-next",
+  "version": "0.3.0",
   "description": "Alarm.com plugin for Homebridge with reusable auth-token enrollment instead of manual MFA cookies.",
   "main": "index.js",
   "bin": {
@@ -26,7 +26,7 @@
     "alarmdotcom"
   ],
   "engines": {
-    "node": ">=18.0.0",
+    "node": "^20.0.0 || ^22.0.0 || ^24.0.0",
     "homebridge": "^1.8.0"
   },
   "peerDependencies": {
@@ -42,5 +42,5 @@
   },
   "homepage": "https://github.com/ezefranca/alarm.com#readme",
   "license": "MIT",
-  "displayName": "Alarm.com"
+  "displayName": "Alarm.com Next"
 }

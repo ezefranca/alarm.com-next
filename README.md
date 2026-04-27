@@ -1,8 +1,10 @@
-# Alarm.com Homebridge Plugin
+# Alarm.com Next for Homebridge
 
 Unofficial Homebridge platform plugin for Alarm.com.
 
 The HomeKit side of the plugin exposes Alarm.com panels, sensors, locks, lights, garage doors, gates, and thermostats. The auth side stores a reusable Alarm.com auth token so Homebridge does not depend on a browser MFA cookie pasted into config.
+
+This package is intentionally separate from `homebridge-alarmdotcom` and uses the Homebridge platform name `AlarmdotcomNext`.
 
 ## Supported HomeKit accessories
 
@@ -65,15 +67,21 @@ Alarm.com's public website and app clearly support approving linked-device reque
 - the plugin still uses the standard web API after authentication for sensors, panels, and other HomeKit accessories
 - linked-device approval support is present, but full Homebridge-as-TV bootstrap is not complete yet
 
-## Setup
-
-1. Install the plugin in Homebridge.
-2. Add the platform config with your Alarm.com username and password.
-3. Run `alarmdotcom-auth` once to save an auth token.
-
 ## Install in Homebridge
 
-### Local install from this repo
+### 1. Remove the conflicting plugin
+
+If `homebridge-alarmdotcom` is already installed, remove it first so Homebridge only loads one Alarm.com package:
+
+```bash
+sudo npm uninstall -g homebridge-alarmdotcom
+```
+
+If you installed it from the Homebridge UI, remove it there instead.
+
+### 2. Install this plugin
+
+#### Local install from this repo
 
 Use this when Homebridge runs on the same machine where you are developing the plugin:
 
@@ -83,7 +91,7 @@ npm install
 sudo npm install -g .
 ```
 
-### Install directly from GitHub
+#### Install directly from GitHub
 
 Use this after the repo is pushed to GitHub, without publishing to npm:
 
@@ -91,19 +99,70 @@ Use this after the repo is pushed to GitHub, without publishing to npm:
 sudo npm install -g github:ezefranca/alarm.com
 ```
 
-### Install from npm
+#### Install from npm
 
 This is the cleanest path for Homebridge UI users, but it requires publishing the package first:
 
 ```bash
-sudo npm install -g homebridge-alarmdotcom
+sudo npm install -g homebridge-alarmdotcom-next
 ```
 
-After any of the install paths above:
+### 3. Enroll the reusable Alarm.com auth token
 
-1. Run `alarmdotcom-auth --username you@example.com`.
-2. Add the platform config shown below.
-3. Restart Homebridge.
+After any of the install paths above, run:
+
+```bash
+alarmdotcom-auth --username you@example.com
+```
+
+Then complete the normal Alarm.com login and 2FA flow once.
+
+If you already have a reusable Alarm.com token from another machine or previous enrollment, you can either:
+
+- import it with `alarmdotcom-auth --username you@example.com --auth-token YOUR_TOKEN`
+- paste it directly into the optional `authToken` field in the Homebridge plugin config
+
+### 4. Add the Homebridge platform config
+
+Use the `AlarmdotcomNext` platform name:
+
+```json
+{
+  "platform": "AlarmdotcomNext",
+  "name": "Alarm.com Next",
+  "username": "you@example.com",
+  "password": "super-secret-password",
+  "authToken": "",
+  "pollIntervalSeconds": 60,
+  "authTimeoutMinutes": 10,
+  "tokenPath": "/var/lib/homebridge/alarmdotcom-auth.json",
+  "ignoredDevices": [],
+  "armingModes": {
+    "away": {
+      "noEntryDelay": false,
+      "silentArming": false,
+      "nightArming": false,
+      "forceBypass": false
+    },
+    "stay": {
+      "noEntryDelay": false,
+      "silentArming": false,
+      "nightArming": false,
+      "forceBypass": false
+    },
+    "night": {
+      "noEntryDelay": false,
+      "silentArming": false,
+      "nightArming": true,
+      "forceBypass": false
+    }
+  }
+}
+```
+
+### 5. Restart Homebridge
+
+After the config is saved, restart Homebridge so the plugin can log in and expose the Alarm.com devices to HomeKit.
 
 ### When Homebridge runs on another machine
 
@@ -134,42 +193,28 @@ If your Homebridge storage lives elsewhere, point both the CLI and plugin at the
 alarmdotcom-auth --username you@example.com --token-file /path/to/alarmdotcom-auth.json
 ```
 
-## Example Homebridge config
+Leaving `tokenPath` empty uses the Homebridge storage directory automatically, which is the recommended setup.
 
-```json
-{
-  "platform": "Alarmdotcom",
-  "name": "Alarm.com",
-  "username": "you@example.com",
-  "password": "super-secret-password",
-  "pollIntervalSeconds": 60,
-  "authTimeoutMinutes": 10,
-  "tokenPath": "/var/lib/homebridge/alarmdotcom-auth.json",
-  "ignoredDevices": [],
-  "armingModes": {
-    "away": {
-      "noEntryDelay": false,
-      "silentArming": false,
-      "nightArming": false,
-      "forceBypass": false
-    },
-    "stay": {
-      "noEntryDelay": false,
-      "silentArming": false,
-      "nightArming": false,
-      "forceBypass": false
-    },
-    "night": {
-      "noEntryDelay": false,
-      "silentArming": false,
-      "nightArming": true,
-      "forceBypass": false
-    }
-  }
-}
-```
+If you were using an older local build of this repo, update the Homebridge config platform name from `Alarmdotcom` to `AlarmdotcomNext`.
 
-The legacy Homebridge platform name `AlarmdotcomTrustedDevice` is still registered for compatibility, but new installs should use `Alarmdotcom`.
+## Verification readiness
+
+This repo is prepared for Homebridge verification work, but the badge will remain orange until the Homebridge team reviews and approves it.
+
+Current repo-side readiness items:
+
+- Homebridge settings UI is implemented through `config.schema.json`
+- no post-install scripts are used
+- no analytics or telemetry are present
+- auth-token storage defaults to the Homebridge storage directory
+- CI runs `npm run check` and `npm test` on Node 20, 22, and 24
+
+Remaining external steps:
+
+1. Publish `homebridge-alarmdotcom-next` to npm.
+2. Push the repo to GitHub with issues enabled.
+3. Create GitHub releases for published versions.
+4. Open a verification request issue in the Homebridge plugins repository.
 
 ## Notes
 
