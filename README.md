@@ -2,70 +2,75 @@
 
 Unofficial Homebridge platform plugin for Alarm.com.
 
-The HomeKit side of the plugin exposes Alarm.com panels, sensors, locks, lights, garage doors, gates, and thermostats. The auth side stores a reusable Alarm.com auth token so Homebridge does not depend on a browser MFA cookie pasted into config.
+This plugin is built around a reusable Alarm.com auth token instead of the older "copy a browser MFA cookie into config" workflow. You authenticate once with `alarmdotcom-auth`, save the token locally, and Homebridge reuses that token for normal polling and device control.
 
-This package is intentionally separate from `homebridge-alarmdotcom` and uses the Homebridge platform name `AlarmdotcomNext`.
+`@ezefranca/homebridge-alarmdotcom-next` is intentionally separate from `homebridge-alarmdotcom` and uses the Homebridge platform name `AlarmdotcomNext`.
+
+## Why this plugin
+
+- No manual browser-cookie extraction.
+- One-time enrollment for accounts that require 2FA.
+- Works for accounts that do not currently require 2FA too.
+- Stores the reusable auth token in Homebridge storage by default.
+- Supports importing an existing Alarm.com auth token.
+- Exposes Alarm.com panels, sensors, locks, lights, garage doors, gates, and thermostats to HomeKit.
+
+## Auth flow
+
+```mermaid
+flowchart TD
+  A[Install plugin] --> B[Run alarmdotcom-auth]
+  B --> C[Alarm.com login]
+  C --> D{Does this Homebridge instance require 2FA?}
+  D -->|Yes| E[Choose app, sms, or email]
+  E --> F[Enter one-time code once]
+  F --> G[Alarm.com issues reusable auth token]
+  D -->|No| H[Login succeeds without OTP]
+  H --> I[Reusable token validated or saved when returned]
+  G --> J[Token stored locally]
+  I --> J
+  J --> K[Homebridge starts with saved token]
+  K --> L[Poll Alarm.com snapshot]
+  L --> M[Expose devices to HomeKit]
+```
+
+With 2FA enabled, the one-time code step only happens during enrollment or after Alarm.com revokes the trusted device state. If your Alarm.com account does not currently require 2FA, the same helper still works. 2FA is strongly recommended.
+
+## Old flow vs this plugin
+
+| Topic | Older cookie-based flow | This plugin |
+| --- | --- | --- |
+| Initial setup | Sign in through a browser and extract MFA cookies manually | Run `alarmdotcom-auth` once |
+| 2FA handling | Cookie often had to be copied again after expiry or reset | Complete 2FA once, save reusable token |
+| Homebridge config | Sensitive browser cookie pasted into config | Optional token path or token import |
+| No-2FA accounts | Usually still browser-session oriented | Direct login still works |
+| Operational model | Browser-session dependent | Token-file based |
 
 ## Supported HomeKit accessories
 
-- Security panels
-- Contact sensors
-- Motion sensors
-- Leak sensors
-- Smoke sensors
-- Carbon monoxide sensors
-- Locks
-- Lights and dimmers
-- Garage doors
-- Gates
-- Thermostats
+| Alarm.com device | HomeKit service | Notes |
+| --- | --- | --- |
+| Security panels / partitions | `SecuritySystem` | Supports disarm, stay, away, and night arming |
+| Contact sensors | `ContactSensor` | Door / window style sensors |
+| Motion sensors | `MotionSensor` | Includes panel motion devices when exposed by Alarm.com |
+| Leak / water sensors | `LeakSensor` | Wet / dry style state mapping |
+| Smoke sensors | `SmokeSensor` | Triggered state maps to smoke detected |
+| Carbon monoxide sensors | `CarbonMonoxideSensor` | Triggered state maps to abnormal CO levels |
+| Glass-break / shock sensors | `ContactSensor` | HomeKit has no first-class glass-break service, so these are currently exposed as contact-style sensors |
+| Locks | `LockMechanism` | Includes battery-low and fault state reporting when available |
+| Lights | `Lightbulb` | On / off |
+| Dimmers | `Lightbulb` | Brightness supported |
+| Garage doors | `GarageDoorOpener` | Open / close |
+| Gates | `GarageDoorOpener` | Exposed with the closest HomeKit service |
+| Thermostats | `Thermostat` | Current temp, target temp, HVAC mode, and humidity when reported |
 
-## Auth modes
+Battery-low and general fault state reporting are surfaced where Alarm.com provides that information.
 
-### 1. Standard Alarm.com 2FA enrollment
+## Known gaps
 
-This is the fully implemented bootstrap path today. Run:
-
-```bash
-alarmdotcom-auth --username you@example.com
-```
-
-The helper will:
-
-- log in with your Alarm.com username and password
-- detect whether Alarm.com requires 2FA for the current Homebridge instance
-- let you choose `app`, `sms`, or `email`
-- verify the one-time code
-- enroll Homebridge for long-lived auth
-- save the returned token to `~/.homebridge/alarmdotcom-auth.json` by default
-
-### 2. Import an existing Alarm.com auth token
-
-If you already have a reusable Alarm.com token from another flow, you can validate and store it:
-
-```bash
-alarmdotcom-auth --username you@example.com --auth-token YOUR_TOKEN_VALUE
-```
-
-The helper validates the token with Alarm.com before saving it.
-
-### 3. Approve an existing TV / linked-device activation code
-
-Alarm.com exposes an approval flow for six-digit activation codes:
-
-```bash
-alarmdotcom-auth --username you@example.com --device-link-code 123456
-```
-
-This approves a code that was already generated by another Alarm.com linked device. It does **not** currently make Homebridge generate its own six-digit code, and Alarm.com may or may not return a reusable token to the approving session.
-
-## Current limitation of the TV / linked-device flow
-
-Alarm.com's public website and app clearly support approving linked-device requests, but this repo has not yet isolated the device-side endpoint that mints the six-digit activation code shown on TV-style clients. Because of that:
-
-- Homebridge does not yet generate its own `alarm.com/ActivateTV` code
-- the plugin still uses the standard web API after authentication for sensors, panels, and other HomeKit accessories
-- linked-device approval support is present, but full Homebridge-as-TV bootstrap is not complete yet
+- Full Homebridge-as-TV enrollment is not complete yet. The repo can approve an existing Alarm.com linked-device activation code, but it does not yet mint its own six-digit `alarm.com/ActivateTV` code.
+- Some Alarm.com sensor categories do not map cleanly to HomeKit and are intentionally skipped.
+- Freeze, panic, mobile-phone, and image-style device types are not currently exposed as HomeKit accessories.
 
 ## Install in Homebridge
 
@@ -81,9 +86,9 @@ If you installed it from the Homebridge UI, remove it there instead.
 
 ### 2. Install this plugin
 
-#### Install from GitHub
+#### Current install path: GitHub
 
-This is the current install path, since the plugin is not published to npm yet:
+This is the current recommended install path:
 
 ```bash
 sudo npm install -g github:ezefranca/alarm.com
@@ -99,28 +104,46 @@ npm install
 sudo npm install -g .
 ```
 
-#### Install from npm
+#### Install from GitHub Packages
 
-Not available yet. This will only work after the package is published:
+Use this after publishing with `.github/workflows/npm-publish-github-packages.yml`:
 
 ```bash
-sudo npm install -g homebridge-alarmdotcom-next
+npm config set @ezefranca:registry https://npm.pkg.github.com
+sudo npm install -g @ezefranca/homebridge-alarmdotcom-next
 ```
 
-### 3. Enroll the reusable Alarm.com auth token
+If the package is private, authenticate first with an account or token that has package read access:
 
-After any of the install paths above, run:
+```bash
+npm login --scope=@ezefranca --registry=https://npm.pkg.github.com
+```
+
+#### Future npmjs install
+
+If you later publish the same package name to npmjs, the install command is:
+
+```bash
+sudo npm install -g @ezefranca/homebridge-alarmdotcom-next
+```
+
+### 3. Enroll or validate the auth token
+
+Standard enrollment:
 
 ```bash
 alarmdotcom-auth --username you@example.com
 ```
 
-Then complete the normal Alarm.com login and 2FA flow once.
+The helper will:
 
-If you already have a reusable Alarm.com token from another machine or previous enrollment, you can either:
+- log in with your Alarm.com username and password
+- detect whether Alarm.com requires 2FA for this Homebridge instance
+- let you choose `app`, `sms`, or `email`
+- verify the one-time code when required
+- save the returned token to `~/.homebridge/alarmdotcom-auth.json` by default
 
-- import it with `alarmdotcom-auth --username you@example.com --auth-token YOUR_TOKEN`
-- paste it directly into the optional `authToken` field in the Homebridge plugin config
+If your Alarm.com account does not prompt for 2FA, the helper still works and continues with the non-OTP login path.
 
 ### 4. Add the Homebridge platform config
 
@@ -137,6 +160,7 @@ Use the `AlarmdotcomNext` platform name:
   "authTimeoutMinutes": 10,
   "tokenPath": "/var/lib/homebridge/alarmdotcom-auth.json",
   "ignoredDevices": [],
+  "logLevel": "info",
   "armingModes": {
     "away": {
       "noEntryDelay": false,
@@ -164,9 +188,9 @@ Use the `AlarmdotcomNext` platform name:
 
 After the config is saved, restart Homebridge so the plugin can log in and expose the Alarm.com devices to HomeKit.
 
-### When Homebridge runs on another machine
+## Homebridge on another machine
 
-If the Homebridge server is not this development machine, do the install and auth steps on the Homebridge server itself:
+If the Homebridge server is not the machine where you are editing this repo, do the install and auth steps on the Homebridge server itself:
 
 ```bash
 sudo npm install -g github:ezefranca/alarm.com
@@ -176,26 +200,69 @@ alarmdotcom-auth --username you@example.com
 That matters because the saved auth token file is local to the machine where `alarmdotcom-auth` runs. If you authenticate on one machine and Homebridge runs on another, you must either:
 
 1. Copy the token file to the Homebridge machine.
-2. Or set `tokenPath` so both the CLI and plugin point to the same shared file.
+2. Or point both the CLI and the plugin at the same shared file with `--token-file` and `tokenPath`.
 
-## Publish checklist
+## Auth helper examples
 
-If you want this to be installable from the normal Homebridge plugin flow instead of a manual GitHub install:
+Standard enrollment:
 
-1. Push the repo to GitHub.
-2. Confirm the repo URL in `package.json` matches the final GitHub repository.
-3. Run `npm login`.
-4. Run `npm publish`.
+```bash
+alarmdotcom-auth --username you@example.com
+```
 
-If your Homebridge storage lives elsewhere, point both the CLI and plugin at the same token file:
+Pick a specific 2FA method up front:
+
+```bash
+alarmdotcom-auth --username you@example.com --method app
+```
+
+Import and validate an existing Alarm.com auth token:
+
+```bash
+alarmdotcom-auth --username you@example.com --auth-token YOUR_TOKEN_VALUE
+```
+
+Approve an existing linked-device activation code:
+
+```bash
+alarmdotcom-auth --username you@example.com --device-link-code 123456
+```
+
+Use a custom token file:
 
 ```bash
 alarmdotcom-auth --username you@example.com --token-file /path/to/alarmdotcom-auth.json
 ```
 
-Leaving `tokenPath` empty uses the Homebridge storage directory automatically, which is the recommended setup.
+Show debug output:
 
-If you were using an older local build of this repo, update the Homebridge config platform name from `Alarmdotcom` to `AlarmdotcomNext`.
+```bash
+alarmdotcom-auth --username you@example.com --debug
+```
+
+## Configuration reference
+
+| Key | Required | Default | Meaning |
+| --- | --- | --- | --- |
+| `platform` | yes | none | Must be `AlarmdotcomNext` |
+| `name` | no | `Alarm.com Next` | Display name inside Homebridge |
+| `username` | yes | none | Alarm.com username |
+| `password` | yes | none | Alarm.com password |
+| `authToken` | no | empty | Optional reusable Alarm.com token pasted directly into config |
+| `tokenPath` | no | Homebridge storage + `alarmdotcom-auth.json` | Override token file location |
+| `pollIntervalSeconds` | no | `60` | Device refresh interval, minimum `30` |
+| `authTimeoutMinutes` | no | `10` | Session refresh interval |
+| `logLevel` | no | `info` | One of `debug`, `info`, `warn`, `error` |
+| `ignoredDevices` | no | `[]` | Alarm.com device IDs to hide from HomeKit |
+| `armingModes.*` | no | built in | Per-mode arming flags for stay / away / night |
+
+## Operational notes
+
+- Polling is intentionally conservative. The default is 60 seconds.
+- If Alarm.com resets 2FA, revokes trusted devices, or invalidates the stored token, rerun `alarmdotcom-auth`.
+- Leaving `tokenPath` empty uses the Homebridge storage directory automatically. That is the recommended setup.
+- If `alarmdotcom-auth` appears to pause after the password prompt, run it again with `--debug` for clearer login-step output.
+- If you were using an older local build of this repo, update the Homebridge platform name from `Alarmdotcom` to `AlarmdotcomNext`.
 
 ## Verification readiness
 
@@ -211,22 +278,15 @@ Current repo-side readiness items:
 
 Remaining external steps:
 
-1. Publish `homebridge-alarmdotcom-next` to npm.
+1. Publish `@ezefranca/homebridge-alarmdotcom-next` to npm.
 2. Push the repo to GitHub with issues enabled.
 3. Create GitHub releases for published versions.
 4. Open a verification request issue in the Homebridge plugins repository.
-
-## Notes
-
-- Polling is intentionally conservative. The default is 60 seconds.
-- If Alarm.com resets 2FA or revokes trusted devices, rerun `alarmdotcom-auth`.
-- Some Alarm.com sensor types do not map cleanly to HomeKit and are intentionally skipped.
-- If `alarmdotcom-auth` appears to pause after the password prompt, run it again with `--debug` to see the current login step and clearer network errors.
 
 ## Research references
 
 - Alarm.com linked devices: https://answers.alarm.com/Partner/Installation_and_Troubleshooting/Website_and_Apps/General_Website_and_Apps_Information/Linked_Devices
 - Alarm.com TV activation page: https://www.alarm.com/ActivateTV
 - Alarm.com Video for TV overview: https://answers.alarm.com/Partner/Installation_and_Troubleshooting/Website_and_Apps/Alarm.com_Video_for_TV
-- Existing Homebridge implementation that still relied on manual MFA cookies: https://github.com/node-alarm-dot-com/homebridge-node-alarm-dot-com
+- Existing Homebridge implementation that relied on manual MFA cookies: https://github.com/node-alarm-dot-com/homebridge-node-alarm-dot-com
 - Maintained Home Assistant integration using Alarm.com login and trusted-device APIs: https://github.com/pyalarmdotcom/alarmdotcom
