@@ -19,21 +19,35 @@ The canonical Homebridge package is the npm package `homebridge-alarm.com-next`.
 
 ## Auth flow
 
-```mermaid
-flowchart TD
-  A[Install plugin] --> B[Run alarmdotcom-auth]
-  B --> C[Alarm.com login]
-  C --> D{Does this Homebridge instance require 2FA?}
-  D -->|Yes| E[Choose app, sms, or email]
-  E --> F[Enter one-time code once]
-  F --> G[Alarm.com issues reusable auth token]
-  D -->|No| H[Login succeeds without OTP]
-  H --> I[Reusable token validated or saved when returned]
-  G --> J[Token stored locally]
-  I --> J
-  J --> K[Homebridge starts with saved token]
-  K --> L[Poll Alarm.com snapshot]
-  L --> M[Expose devices to HomeKit]
+```text
+Install plugin
+  |
+  v
+Run alarmdotcom-auth
+  |
+  v
+Alarm.com login
+  |
+  +--> If 2FA is required:
+  |      choose app, sms, or email
+  |      enter one-time code once
+  |      Alarm.com issues a reusable auth token
+  |
+  +--> If 2FA is not required:
+         login succeeds without OTP
+         reusable token is validated or saved when returned
+  |
+  v
+Token stored locally
+  |
+  v
+Homebridge starts with saved token
+  |
+  v
+Poll Alarm.com snapshot
+  |
+  v
+Expose devices to HomeKit
 ```
 
 With 2FA enabled, the one-time code step only happens during enrollment or after Alarm.com revokes the trusted device state. If your Alarm.com account does not currently require 2FA, the same helper still works. 2FA is strongly recommended.
