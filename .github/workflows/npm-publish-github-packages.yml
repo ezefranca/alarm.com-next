@@ -1,0 +1,53 @@
+name: Publish to GitHub Packages
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: npm pack --dry-run
+
+  publish-gpr:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://npm.pkg.github.com/
+          scope: '@ezefranca'
+      - run: npm ci
+      - name: Rewrite package for GitHub Packages
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          pkg.name = '@ezefranca/homebridge-alarm.com-next';
+          pkg.publishConfig = { registry: 'https://npm.pkg.github.com/' };
+          fs.writeFileSync('package.json', `${JSON.stringify(pkg, null, 2)}\n`, 'utf8');
+
+          const platformPath = 'lib/platform.js';
+          const platformSource = fs.readFileSync(platformPath, 'utf8').replace(
+            "const PLUGIN_NAME = 'homebridge-alarm.com-next';",
+            "const PLUGIN_NAME = '@ezefranca/homebridge-alarm.com-next';"
+          );
+          fs.writeFileSync(platformPath, platformSource, 'utf8');
+          NODE
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}

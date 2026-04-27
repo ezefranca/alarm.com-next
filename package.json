@@ -1,6 +1,6 @@
 {
   "name": "homebridge-alarm.com-next",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Alarm.com plugin for Homebridge with reusable auth-token enrollment instead of manual MFA cookies.",
   "main": "index.js",
   "bin": {
@@ -32,7 +32,10 @@
   "peerDependencies": {
     "homebridge": "^1.8.0"
   },
-  "author": "Ezequiel dos Santos",
+  "author": {
+    "name": "Ezequiel dos Santos (@ezefranca)",
+    "url": "https://github.com/ezefranca"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ezefranca/alarm.com.git"

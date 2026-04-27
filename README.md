@@ -4,7 +4,9 @@ Unofficial Homebridge platform plugin for Alarm.com.
 
 This plugin is built around a reusable Alarm.com auth token instead of the older "copy a browser MFA cookie into config" workflow. You authenticate once with `alarmdotcom-auth`, save the token locally, and Homebridge reuses that token for normal polling and device control.
 
-`homebridge-alarm.com-next` is intentionally separate from `homebridge-alarmdotcom` and uses the Homebridge platform name `AlarmdotcomNext`.
+`homebridge-alarm.com-next` uses the Homebridge platform name `AlarmdotcomNext`.
+
+The canonical Homebridge package is the npm package `homebridge-alarm.com-next`. An optional GitHub Packages mirror can also be published as `@ezefranca/homebridge-alarm.com-next`.
 
 ## Why this plugin
 
@@ -76,9 +78,10 @@ Battery-low and general fault state reporting are surfaced where Alarm.com provi
 
 ### 1. Remove the conflicting plugin
 
-If `homebridge-alarmdotcom` is already installed, remove it first so Homebridge only loads one Alarm.com package:
+If you previously installed another Alarm.com Homebridge package, remove it first so Homebridge only loads one Alarm.com package. Common previous names are `homebridge-alarmdotcom-next` and `homebridge-alarmdotcom`:
 
 ```bash
+sudo npm uninstall -g homebridge-alarmdotcom-next
 sudo npm uninstall -g homebridge-alarmdotcom
 ```
 
@@ -111,6 +114,16 @@ Use this after the package is published to npm:
 ```bash
 sudo npm install -g homebridge-alarm.com-next
 ```
+
+#### Install from GitHub Packages
+
+This is optional. It is not the path used for Homebridge verification, but it can still be convenient for GitHub-based distribution:
+
+```bash
+npm config set @ezefranca:registry https://npm.pkg.github.com
+sudo npm install -g @ezefranca/homebridge-alarm.com-next
+```
+
 
 ### 3. Enroll or validate the auth token
 
@@ -261,6 +274,7 @@ Current repo-side readiness items:
 - auth-token storage defaults to the Homebridge storage directory
 - CI runs `npm ci`, `npm run check`, `npm test`, and `npm pack --dry-run` on Node 20, 22, and 24
 - publish workflow is prepared for npm releases using `NPM_TOKEN`
+- optional GitHub Packages mirror workflow is also prepared
 
 Remaining external steps:
 
