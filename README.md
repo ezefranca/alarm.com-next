@@ -81,9 +81,17 @@ If you installed it from the Homebridge UI, remove it there instead.
 
 ### 2. Install this plugin
 
+#### Install from GitHub
+
+This is the current install path, since the plugin is not published to npm yet:
+
+```bash
+sudo npm install -g github:ezefranca/alarm.com
+```
+
 #### Local install from this repo
 
-Use this when Homebridge runs on the same machine where you are developing the plugin:
+Use this only when Homebridge runs on the same machine where you are developing the plugin:
 
 ```bash
 cd /path/to/alarm.com
@@ -91,17 +99,9 @@ npm install
 sudo npm install -g .
 ```
 
-#### Install directly from GitHub
-
-Use this after the repo is pushed to GitHub, without publishing to npm:
-
-```bash
-sudo npm install -g github:ezefranca/alarm.com
-```
-
 #### Install from npm
 
-This is the cleanest path for Homebridge UI users, but it requires publishing the package first:
+Not available yet. This will only work after the package is published:
 
 ```bash
 sudo npm install -g homebridge-alarmdotcom-next
