@@ -37,14 +37,14 @@ jobs:
           node - <<'NODE'
           const fs = require('node:fs');
           const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-          pkg.name = '@ezefranca/homebridge-alarm.com-next';
+          pkg.name = '@ezefranca/homebridge-alarmdotcom-next';
           pkg.publishConfig = { registry: 'https://npm.pkg.github.com/' };
           fs.writeFileSync('package.json', `${JSON.stringify(pkg, null, 2)}\n`, 'utf8');
 
           const platformPath = 'lib/platform.js';
           const platformSource = fs.readFileSync(platformPath, 'utf8').replace(
-            "const PLUGIN_NAME = 'homebridge-alarm.com-next';",
-            "const PLUGIN_NAME = '@ezefranca/homebridge-alarm.com-next';"
+            "const PLUGIN_NAME = 'homebridge-alarmdotcom-next';",
+            "const PLUGIN_NAME = '@ezefranca/homebridge-alarmdotcom-next';"
           );
           fs.writeFileSync(platformPath, platformSource, 'utf8');
           NODE

@@ -1,6 +1,6 @@
 {
-  "name": "homebridge-alarm.com-next",
-  "version": "0.4.5",
+  "name": "homebridge-alarmdotcom-next",
+  "version": "0.4.6",
   "description": "Alarm.com plugin for Homebridge with reusable auth-token enrollment instead of manual MFA cookies.",
   "main": "index.js",
   "bin": {

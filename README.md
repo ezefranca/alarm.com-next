@@ -4,9 +4,9 @@ Unofficial Homebridge platform plugin for Alarm.com.
 
 This plugin is built around a reusable Alarm.com auth token instead of the older "copy a browser MFA cookie into config" workflow. You authenticate once with `alarmdotcom-auth`, save the token locally, and Homebridge reuses that token for normal polling and device control.
 
-`homebridge-alarm.com-next` uses the Homebridge platform name `AlarmdotcomNext`.
+`homebridge-alarmdotcom-next` uses the Homebridge platform name `AlarmdotcomNext`.
 
-The canonical Homebridge package is the npm package `homebridge-alarm.com-next`. An optional GitHub Packages mirror can also be published as `@ezefranca/homebridge-alarm.com-next`.
+The canonical Homebridge package is the npm package `homebridge-alarmdotcom-next`. An optional GitHub Packages mirror can also be published as `@ezefranca/homebridge-alarmdotcom-next`.
 
 ## Why this plugin
 
@@ -92,10 +92,10 @@ Battery-low and general fault state reporting are surfaced where Alarm.com provi
 
 ### 1. Remove the conflicting plugin
 
-If you previously installed another Alarm.com Homebridge package, remove it first so Homebridge only loads one Alarm.com package. Common previous names are `homebridge-alarmdotcom-next` and `homebridge-alarmdotcom`:
+If you previously installed another Alarm.com Homebridge package, remove it first so Homebridge only loads one Alarm.com package. Common previous names are `homebridge-alarm.com-next` and `homebridge-alarmdotcom`:
 
 ```bash
-sudo npm uninstall -g homebridge-alarmdotcom-next
+sudo npm uninstall -g homebridge-alarm.com-next
 sudo npm uninstall -g homebridge-alarmdotcom
 ```
 
@@ -126,7 +126,7 @@ sudo npm install -g .
 Use this after the package is published to npm:
 
 ```bash
-sudo npm install -g homebridge-alarm.com-next
+sudo npm install -g homebridge-alarmdotcom-next
 ```
 
 #### Install from GitHub Packages
@@ -135,7 +135,7 @@ This is optional. It is not the path used for Homebridge verification, but it ca
 
 ```bash
 npm config set @ezefranca:registry https://npm.pkg.github.com
-sudo npm install -g @ezefranca/homebridge-alarm.com-next
+sudo npm install -g @ezefranca/homebridge-alarmdotcom-next
 ```
 
 
@@ -292,7 +292,7 @@ Current repo-side readiness items:
 
 Remaining external steps:
 
-1. Publish `homebridge-alarm.com-next` to npm.
+1. Publish `homebridge-alarmdotcom-next` to npm.
 2. Push the repo to GitHub with issues enabled.
 3. Create GitHub releases for published versions, with release notes.
 4. Open a verification request issue in the Homebridge plugins repository.
