@@ -108,7 +108,7 @@ If you installed it from the Homebridge UI, remove it there instead.
 This is the current recommended install path:
 
 ```bash
-sudo npm install -g github:ezefranca/alarm.com
+sudo npm install -g github:ezefranca/homebridge-alarmdotcom-next
 ```
 
 #### Local install from this repo
@@ -116,7 +116,7 @@ sudo npm install -g github:ezefranca/alarm.com
 Use this only when Homebridge runs on the same machine where you are developing the plugin:
 
 ```bash
-cd /path/to/alarm.com
+cd /path/to/homebridge-alarmdotcom-next
 npm install
 sudo npm install -g .
 ```
@@ -205,7 +205,7 @@ After the config is saved, restart Homebridge so the plugin can log in and expos
 If the Homebridge server is not the machine where you are editing this repo, do the install and auth steps on the Homebridge server itself:
 
 ```bash
-sudo npm install -g github:ezefranca/alarm.com
+sudo npm install -g github:ezefranca/homebridge-alarmdotcom-next
 alarmdotcom-auth --username you@example.com
 ```
 
