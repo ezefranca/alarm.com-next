@@ -18,11 +18,13 @@
       },
       "password": {
         "title": "Alarm.com Password",
-        "type": "string"
+        "type": "string",
+        "format": "password"
       },
       "authToken": {
         "title": "Existing Alarm.com Auth Token",
         "type": "string",
+        "format": "password",
         "description": "Optional. Paste a reusable Alarm.com token here if you already enrolled this Homebridge instance or exported a token elsewhere."
       },
       "tokenPath": {

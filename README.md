@@ -4,7 +4,7 @@ Unofficial Homebridge platform plugin for Alarm.com.
 
 This plugin is built around a reusable Alarm.com auth token instead of the older "copy a browser MFA cookie into config" workflow. You authenticate once with `alarmdotcom-auth`, save the token locally, and Homebridge reuses that token for normal polling and device control.
 
-`@ezefranca/homebridge-alarmdotcom-next` is intentionally separate from `homebridge-alarmdotcom` and uses the Homebridge platform name `AlarmdotcomNext`.
+`homebridge-alarm.com-next` is intentionally separate from `homebridge-alarmdotcom` and uses the Homebridge platform name `AlarmdotcomNext`.
 
 ## Why this plugin
 
@@ -104,27 +104,12 @@ npm install
 sudo npm install -g .
 ```
 
-#### Install from GitHub Packages
+#### Install from npm
 
-Use this after publishing with `.github/workflows/npm-publish-github-packages.yml`:
-
-```bash
-npm config set @ezefranca:registry https://npm.pkg.github.com
-sudo npm install -g @ezefranca/homebridge-alarmdotcom-next
-```
-
-If the package is private, authenticate first with an account or token that has package read access:
+Use this after the package is published to npm:
 
 ```bash
-npm login --scope=@ezefranca --registry=https://npm.pkg.github.com
-```
-
-#### Future npmjs install
-
-If you later publish the same package name to npmjs, the install command is:
-
-```bash
-sudo npm install -g @ezefranca/homebridge-alarmdotcom-next
+sudo npm install -g homebridge-alarm.com-next
 ```
 
 ### 3. Enroll or validate the auth token
@@ -274,13 +259,14 @@ Current repo-side readiness items:
 - no post-install scripts are used
 - no analytics or telemetry are present
 - auth-token storage defaults to the Homebridge storage directory
-- CI runs `npm run check` and `npm test` on Node 20, 22, and 24
+- CI runs `npm ci`, `npm run check`, `npm test`, and `npm pack --dry-run` on Node 20, 22, and 24
+- publish workflow is prepared for npm releases using `NPM_TOKEN`
 
 Remaining external steps:
 
-1. Publish `@ezefranca/homebridge-alarmdotcom-next` to npm.
+1. Publish `homebridge-alarm.com-next` to npm.
 2. Push the repo to GitHub with issues enabled.
-3. Create GitHub releases for published versions.
+3. Create GitHub releases for published versions, with release notes.
 4. Open a verification request issue in the Homebridge plugins repository.
 
 ## Research references
